@@ -39,6 +39,8 @@ dependencies:
   get: ^4.6.6
   bounce: ^1.0.2
   lottie:  
+  url_launcher: ^6.3.1
+  animated_text_kit: ^4.2.2
 
  
   

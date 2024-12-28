@@ -1,12 +1,18 @@
 import 'dart:ui';
 
+import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:bounce/bounce.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get/get_navigation/src/routes/default_transitions.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
 import 'package:resume/about_page.dart';
-import 'package:resume/colors.dart';
+import 'package:resume/common/colors.dart';
+import 'package:resume/common/fadein_widget.dart';
+import 'package:resume/constants.dart';
 import 'package:resume/controller.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 void main() {
   runApp(const MyApp());
@@ -34,7 +40,7 @@ class HomePage extends StatelessWidget {
   final List<String> _tabs = [
     'Home',
     'About',
-    'Experience',
+    'Resume',
   ];
 
   @override
@@ -42,97 +48,8 @@ class HomePage extends StatelessWidget {
     return Obx(
       () => Scaffold(
           floatingActionButtonLocation: FloatingActionButtonLocation.centerTop,
-          floatingActionButton: Container(
-              margin: const EdgeInsets.only(top: 20),
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Colors.black,
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                mainAxisSize: MainAxisSize.min,
-                children: List.generate(_tabs.length, (index) {
-                  return GestureDetector(
-                    onTap: () {
-                      homeController.selectedIndex.value = index.toString();
-                    },
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.linear,
-                          margin: const EdgeInsets.symmetric(vertical: 4),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 15, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: homeController.selectedIndex.value ==
-                                    index.toString()
-                                ? ThemeColors.secondary
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            _tabs[index],
-                            style: TextStyle(
-                              color: homeController.selectedIndex.value ==
-                                      index.toString()
-                                  ? Colors.white
-                                  : Colors.grey,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }),
-              )
-              // child: Row(
-              //   mainAxisSize: MainAxisSize.min,
-              //   children: [
-              //     Container(
-              //       decoration: BoxDecoration(
-              //         color: ThemeColors.secondary,
-              //         borderRadius: BorderRadius.circular(30),
-              //       ),
-              //       child: TextButton(
-              //         onPressed: () {},
-              //         child: const Text(
-              //           "Home",
-              //           style: TextStyle(color: Colors.white),
-              //         ),
-              //       ),
-              //     ),
-              //     TextButton(
-              //       onPressed: () {},
-              //       child:
-              //           const Text("About", style: TextStyle(color: Colors.white)),
-              //     ),
-              //     TextButton(
-              //       onPressed: () {},
-              //       child: const Text("Service",
-              //           style: TextStyle(color: Colors.white)),
-              //     ),
-              //     TextButton(
-              //       onPressed: () {},
-              //       child:
-              //           const Text("Resume", style: TextStyle(color: Colors.white)),
-              //     ),
-              //     TextButton(
-              //       onPressed: () {},
-              //       child: const Text("Project",
-              //           style: TextStyle(color: Colors.white)),
-              //     ),
-              //     TextButton(
-              //       onPressed: () {},
-              //       child: const Text("Contact",
-              //           style: TextStyle(color: Colors.white)),
-              //     ),
-              //   ],
-              // ),
-              ),
+          floatingActionButton:
+              TapBarWidget(tabs: _tabs, homeController: homeController),
           backgroundColor: Colors.white,
           body: SingleChildScrollView(
             child: Column(
@@ -148,11 +65,75 @@ class HomePage extends StatelessWidget {
                         : const HomeWidget(),
                   ],
                 ),
+
+                ///////////////////////////footer/////////////////////////
                 const FooterWidget(),
               ],
             ),
           )),
     );
+  }
+}
+
+class TapBarWidget extends StatelessWidget {
+  const TapBarWidget({
+    super.key,
+    required List<String> tabs,
+    required this.homeController,
+  }) : _tabs = tabs;
+
+  final List<String> _tabs;
+  final HomeController homeController;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        margin: const EdgeInsets.only(top: 20),
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: Colors.black,
+          borderRadius: BorderRadius.circular(30),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisSize: MainAxisSize.min,
+          children: List.generate(_tabs.length, (index) {
+            return GestureDetector(
+              onTap: () {
+                homeController.selectedIndex.value = index.toString();
+              },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.linear,
+                    margin: const EdgeInsets.symmetric(vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                    decoration: BoxDecoration(
+                      color:
+                          homeController.selectedIndex.value == index.toString()
+                              ? ThemeColors.secondary
+                              : Colors.transparent,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      _tabs[index],
+                      style: TextStyle(
+                        color: homeController.selectedIndex.value ==
+                                index.toString()
+                            ? Colors.white
+                            : Colors.grey,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+        ));
   }
 }
 
@@ -165,6 +146,7 @@ class HomeWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        ////////////////////////////hello /////////////////////
         Stack(
           children: [
             Container(
@@ -197,10 +179,9 @@ class HomeWidget extends StatelessWidget {
             ),
           ],
         ),
-
         const SizedBox(height: 10),
 
-        // Main introduction
+        ////////////////////////////main ///////////////////////////
 
         Stack(
           children: [
@@ -214,32 +195,44 @@ class HomeWidget extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 40),
-              child: Text.rich(
-                TextSpan(
-                  text: "I'm ",
-                  style: GoogleFonts.urbanist(
-                    fontSize: 90,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
+              child: Column(
+                children: [
+                  Text.rich(
+                    TextSpan(
+                      text: "I'm ",
+                      style: GoogleFonts.urbanist(
+                        fontSize: 90,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                      children: [
+                        TextSpan(
+                            text: "Shahil",
+                            style: GoogleFonts.urbanist(
+                              color: ThemeColors.secondary,
+                              fontSize: 90,
+                              fontWeight: FontWeight.bold,
+                            )),
+                        // TextSpan(
+                        //     text: ",\nFlutter Developer",
+                        //     style: GoogleFonts.urbanist(
+                        //       color: Colors.black,
+                        //       fontSize: 90,
+                        //       fontWeight: FontWeight.bold,
+                        //     )),
+                      ],
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                  children: [
-                    TextSpan(
-                        text: "Shahil",
-                        style: GoogleFonts.urbanist(
-                          color: ThemeColors.secondary,
-                          fontSize: 90,
-                          fontWeight: FontWeight.bold,
-                        )),
-                    TextSpan(
-                        text: ",\nFlutter Developer",
-                        style: GoogleFonts.urbanist(
-                          color: Colors.black,
-                          fontSize: 90,
-                          fontWeight: FontWeight.bold,
-                        )),
-                  ],
-                ),
-                textAlign: TextAlign.center,
+                  TypeTextWidget(
+                    text: "Flutter Developer ",
+                    textStyle: GoogleFonts.urbanist(
+                      color: Colors.black,
+                      fontSize: 90,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  )
+                ],
               ),
             ),
           ],
@@ -256,7 +249,7 @@ class HomeWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "Shahil’s exceptional flutter developing skills\nensures our flutter app's success.\nHighly Recommended.",
+                    "Shahil’s exceptional flutter developing skills\nensures our flutter app's success.\n Let's discuss what is our next project..",
                     textAlign: TextAlign.center,
                     style: GoogleFonts.poppins(
                       fontSize: 16,
@@ -293,6 +286,7 @@ class HomeWidget extends StatelessWidget {
                     child: Image.asset(
                       "assets/images/Ellipse 2.png",
                       height: 400,
+                      color: Color(0xff93AAB8),
                       fit: BoxFit.contain,
                     ),
                   ),
@@ -388,40 +382,40 @@ class HomeWidget extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
                   ),
-                  Row(
-                    children: [
-                      Expanded(
-                          child: Image.asset(
-                        "assets/images/s1.png",
-                        height: 300,
-                        fit: BoxFit.fitHeight,
-                      )),
-                      Expanded(
-                          child: Image.asset(
-                        "assets/images/s2.png",
-                        height: 300,
-                        fit: BoxFit.fitHeight,
-                      )),
-                      Expanded(
-                          child: Image.asset(
-                        "assets/images/s3.png",
-                        height: 300,
-                        fit: BoxFit.fitHeight,
-                      )),
-                      Expanded(
-                          child: Image.asset(
-                        "assets/images/s4.png",
-                        height: 300,
-                        fit: BoxFit.fitHeight,
-                      )),
-                    ],
-                  ),
+
+                  ScrollConfiguration(
+                    behavior: ScrollBehavior().copyWith(dragDevices: {
+                      PointerDeviceKind.mouse,
+                      PointerDeviceKind.touch,
+                    }, scrollbars: false),
+                    child: SizedBox(
+                      height: 300,
+                      width: Get.width,
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        physics: BouncingScrollPhysics(),
+                        children: [
+                          for (var i = 1; i <= 5; i++)
+                            Container(
+                              padding: EdgeInsets.symmetric(horizontal: 10),
+                              child: Image.asset(
+                                "assets/images/s$i.png",
+                                height: 300,
+                                fit: BoxFit.fitHeight,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  )
+
                   // CarouselView(itemExtent: , children: children)
                 ],
               ),
             )
           ],
         ),
+        ///////////////////////////////////////work experience/////////////////////////////////
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 50),
           child: Text.rich(
@@ -445,24 +439,34 @@ class HomeWidget extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
         ),
-
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 30),
           child: Row(
-            // mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Image.asset(
+                "assets/images/beams.png",
+                height: 80,
+              ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    "Beam IT solutions,Al qusais , Dubai",
-                    style: GoogleFonts.poppins(
-                      fontSize: 25,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                  Bounce(
+                    onTap: () {
+                      customlaunchUrl(url: Constants.beamsUrl);
+                    },
+                    child: HoverText(
+                      text: "Beam IT solutions,Al qusais , Dubai",
                     ),
                   ),
+                  // Text(
+                  //   "Beam IT solutions,Al qusais , Dubai",
+                  //   style: GoogleFonts.poppins(
+                  //     fontSize: 25,
+                  //     fontWeight: FontWeight.bold,
+                  //     color: Colors.black,
+                  //   ),
+                  // ),
                   Text(
                     "August 10 - present",
                     textAlign: TextAlign.center,
@@ -473,7 +477,7 @@ class HomeWidget extends StatelessWidget {
                   ),
                   Text(
                     "Working in managing and leading Flutter app development projects",
-                    textAlign: TextAlign.center,
+                    textAlign: TextAlign.left,
                     style: GoogleFonts.poppins(
                         fontSize: 13,
                         color: Colors.grey[900],
@@ -483,7 +487,7 @@ class HomeWidget extends StatelessWidget {
                     constraints: const BoxConstraints(maxWidth: 500),
                     child: Text(
                       "Lead a team of developers, providing technical guidance, code reviews, and mentorship to ensure best practices and timely project execution. ",
-                      textAlign: TextAlign.center,
+                      textAlign: TextAlign.left,
                       style: GoogleFonts.poppins(
                           fontSize: 13,
                           color: Colors.grey[900],
@@ -498,14 +502,33 @@ class HomeWidget extends StatelessWidget {
                 children: [
                   Text(
                     "Flutter Developer Lead",
+                    textAlign: TextAlign.center,
                     style: GoogleFonts.poppins(
                       fontSize: 25,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
                     ),
                   ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 300),
+                    child: Text(
+                      '''Spearheading the development and management of Flutter-based mobile applications,ensuring high-quality code and efficient project delivery...''',
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.poppins(
+                        fontSize: 13,
+                        color: Colors.grey[900],
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+
                   // Text(
-                  //   "Lead Flutter Developer:",
+                  //   "State Management Expertise:",
                   //   style: GoogleFonts.poppins(
                   //     fontSize: 18,
                   //     fontWeight: FontWeight.bold,
@@ -515,27 +538,8 @@ class HomeWidget extends StatelessWidget {
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 300),
                     child: Text(
-                      '''Spearheading the development and management of Flutter-based mobile applications,ensuring high-quality code and efficient project delivery''',
-                      textAlign: TextAlign.left,
-                      style: GoogleFonts.poppins(
-                        fontSize: 13,
-                        color: Colors.grey[900],
-                      ),
-                    ),
-                  ),
-                  Text(
-                    "State Management Expertise:",
-                    style: GoogleFonts.poppins(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 300),
-                    child: Text(
                       '''Proficient in implementing GetX for robust and scalable state management, optimizing app performance and enhancing maintainability. ''',
-                      textAlign: TextAlign.left,
+                      textAlign: TextAlign.center,
                       style: GoogleFonts.poppins(
                         fontSize: 13,
                         color: Colors.grey[900],
@@ -551,19 +555,30 @@ class HomeWidget extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 30),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              Image.asset(
+                "assets/images/techfriar.png",
+                height: 80,
+              ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    "Techfriar technologies,inforpark ,Kochi",
-                    style: GoogleFonts.poppins(
-                      fontSize: 25,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                  Bounce(
+                    onTap: () {
+                      customlaunchUrl(url: Constants.techfriarUrl);
+                    },
+                    child: HoverText(
+                      text: "Techfriar technologies,inforpark ,Kochi",
                     ),
                   ),
+                  // Text(
+                  //   "Techfriar technologies,inforpark ,Kochi",
+                  //   style: GoogleFonts.poppins(
+                  //     fontSize: 25,
+                  //     fontWeight: FontWeight.bold,
+                  //     color: Colors.black,
+                  //   ),
+                  // ),
                   Text(
                     "March 2022 - August 2024",
                     textAlign: TextAlign.center,
@@ -574,7 +589,7 @@ class HomeWidget extends StatelessWidget {
                   ),
                   Text(
                     "Worked as a Flutter developer for Techfriar Technologies",
-                    textAlign: TextAlign.center,
+                    textAlign: TextAlign.left,
                     style: GoogleFonts.poppins(
                         fontSize: 13,
                         color: Colors.grey[900],
@@ -582,11 +597,13 @@ class HomeWidget extends StatelessWidget {
                   ),
                 ],
               ),
+              Spacer(),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     "Flutter Developer",
+                    textAlign: TextAlign.center,
                     style: GoogleFonts.poppins(
                       fontSize: 25,
                       fontWeight: FontWeight.bold,
@@ -594,21 +611,41 @@ class HomeWidget extends StatelessWidget {
                     ),
                   ),
                   ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 300),
-                    child: Text(
-                      '''Worked in different architectures like Bloc, GetX , and Riverpod.''',
-                      textAlign: TextAlign.left,
-                      style: GoogleFonts.poppins(
-                        fontSize: 13,
-                        color: Colors.grey[900],
+                      constraints: const BoxConstraints(maxWidth: 300),
+                      child: Text.rich(
+                        TextSpan(
+                          text: "Worked in different architectures like",
+                          style: GoogleFonts.poppins(
+                            fontSize: 13,
+                            color: Colors.black,
+                          ),
+                          children: [
+                            TextSpan(
+                                text: "  Bloc, GetX , and Riverpod.",
+                                style: GoogleFonts.poppins(
+                                  color: Colors.black,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                )),
+                          ],
+                        ),
+                        textAlign: TextAlign.center,
+                      )
+
+                      // Text(
+                      //   '''Worked in different architectures like Bloc, GetX , and Riverpod.''',
+                      //   textAlign: TextAlign.left,
+                      //   style: GoogleFonts.poppins(
+                      //     fontSize: 13,
+                      //     color: Colors.grey[900],
+                      //   ),
+                      // ),
                       ),
-                    ),
-                  ),
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 300),
                     child: Text(
-                      '''have experience in working on project which support Audio and Video call ''',
-                      textAlign: TextAlign.left,
+                      '''Got experience in working on project which support Audio and Video call ''',
+                      textAlign: TextAlign.center,
                       style: GoogleFonts.poppins(
                         fontSize: 13,
                         color: Colors.grey[900],
@@ -619,7 +656,7 @@ class HomeWidget extends StatelessWidget {
                     constraints: const BoxConstraints(maxWidth: 300),
                     child: Text(
                       '''Good understanding of serverless Data Management systems such as SQLite and Hive . ''',
-                      textAlign: TextAlign.left,
+                      textAlign: TextAlign.center,
                       style: GoogleFonts.poppins(
                         fontSize: 13,
                         color: Colors.grey[900],
@@ -631,43 +668,127 @@ class HomeWidget extends StatelessWidget {
             ],
           ),
         ),
-        // Padding(
-        //   padding: const EdgeInsets.only(top: 20),
-        //   child: Stack(
-        //     children: [
-        //       ClipRRect(
-        //         borderRadius: BorderRadius.circular(15),
-        //         child: Container(
-        //           height: 200,
-        //           width: double.infinity,
-        //           child: ClipRRect(
-        //             borderRadius: BorderRadius.circular(50),
-        //             child: Image.asset(
-        //               "assets/images/bg2.png",
-        //               fit: BoxFit.fill,
-        //             ),
-        //           ),
-        //         ),
-        //       ),
-        //       Padding(
-        //         padding: const EdgeInsets.only(bottom: 20),
-        //         child: Center(
-        //           child: Text.rich(
-        //             TextSpan(
-        //               text: "My Skills",
-        //               style: GoogleFonts.urbanist(
-        //                 fontSize: 30,
-        //                 fontWeight: FontWeight.bold,
-        //                 color: Colors.white,
-        //               ),
-        //             ),
-        //             textAlign: TextAlign.center,
-        //           ),
-        //         ),
-        //       )
-        //     ],
-        //   ),
-        // ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 30),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Image.asset(
+                "assets/images/mind.png",
+                height: 80,
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Bounce(
+                    onTap: () {
+                      customlaunchUrl(url: Constants.mindIncUrl);
+                    },
+                    child: HoverText(
+                      text: "Mind Inc , Banglore ,Karnataka",
+                    ),
+                  ),
+                  // Text(
+                  //   "Mind Inc , Banglore ,Karnataka",
+                  //   style: GoogleFonts.poppins(
+                  //     fontSize: 25,
+                  //     fontWeight: FontWeight.bold,
+                  //     color: Colors.black,
+                  //   ),
+                  // ),
+                  Text(
+                    "August 2021 - March 2022",
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.poppins(
+                      fontSize: 13,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                  Text(
+                    "worked as flutter developer apprentice and UI/UX designer for Mind.IncSoftware Solutions. ",
+                    textAlign: TextAlign.left,
+                    style: GoogleFonts.poppins(
+                        fontSize: 13,
+                        color: Colors.grey[900],
+                        fontStyle: FontStyle.italic),
+                  ),
+                ],
+              ),
+              Spacer(),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 300),
+                    child: Text(
+                      "UI/UX designer",
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.poppins(
+                        fontSize: 25,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                  ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 300),
+                      child: Text.rich(
+                        TextSpan(
+                          text: "Worked in different architectures like",
+                          style: GoogleFonts.poppins(
+                            fontSize: 13,
+                            color: Colors.black,
+                          ),
+                          children: [
+                            TextSpan(
+                                text: "  Bloc, GetX , and Riverpod.",
+                                style: GoogleFonts.poppins(
+                                  color: Colors.black,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                )),
+                          ],
+                        ),
+                        textAlign: TextAlign.center,
+                      )
+
+                      // Text(
+                      //   '''Worked in different architectures like Bloc, GetX , and Riverpod.''',
+                      //   textAlign: TextAlign.left,
+                      //   style: GoogleFonts.poppins(
+                      //     fontSize: 13,
+                      //     color: Colors.grey[900],
+                      //   ),
+                      // ),
+                      ),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 300),
+                    child: Text(
+                      '''Got experience in working on project which support Audio and Video call ''',
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.poppins(
+                        fontSize: 13,
+                        color: Colors.grey[900],
+                      ),
+                    ),
+                  ),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 300),
+                    child: Text(
+                      '''Good understanding of serverless Data Management systems such as SQLite and Hive . ''',
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.poppins(
+                        fontSize: 13,
+                        color: Colors.grey[900],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+/////////////////////////////new idea section/////////////////////////////////////
         Lottie.asset("assets/lottie/l1.json", height: 400),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 40),
@@ -1062,5 +1183,50 @@ class GlassContainer extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class HoverText extends StatefulWidget {
+  final String text;
+
+  const HoverText({super.key, required this.text});
+  @override
+  _HoverTextState createState() => _HoverTextState();
+}
+
+class _HoverTextState extends State<HoverText> {
+  Color _textColor = Colors.black;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: MouseRegion(
+        onEnter: (_) {
+          setState(() {
+            _textColor = Colors.blue;
+          });
+        },
+        onExit: (_) {
+          setState(() {
+            _textColor = Colors.black;
+          });
+        },
+        child: AnimatedDefaultTextStyle(
+          duration: Duration(milliseconds: 300),
+          style: GoogleFonts.poppins(
+            fontSize: 25,
+            fontWeight: FontWeight.bold,
+            color: _textColor,
+          ),
+          child: Text(widget.text),
+        ),
+      ),
+    );
+  }
+}
+
+Future<void> customlaunchUrl({required String url}) async {
+  if (!await launchUrl(Uri.parse(url))) {
+    throw 'Could not launch $url';
   }
 }
